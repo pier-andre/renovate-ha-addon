@@ -18,7 +18,11 @@ RUN apt-get update \
 
 COPY run.sh /run.sh
 COPY scripts/changelog.mjs /opt/renovate-scripts/changelog.mjs
+# Panneau latéral (ingress) : page de lecture seule listant les PR de Renovate.
+COPY scripts/ui.mjs /opt/renovate-scripts/ui.mjs
 RUN chmod 0755 /run.sh
+
+EXPOSE 8099
 
 # On remplace l'entrée de l'image officielle (qui lance Renovate puis rend la main)
 # par notre boucle : Home Assistant attend un processus qui reste vivant.

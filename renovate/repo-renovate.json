@@ -5,6 +5,13 @@
     ":timezone(Europe/Paris)"
   ],
   "prHourlyLimit": 2,
+  "prConcurrentLimit": 3,
+  "dependencyDashboard": {
+    "enabled": false
+  },
+  "rebaseWhen": "conflicted",
+  "minimumReleaseAge": "3 days",
+  "osvVulnerabilityAlerts": true,
   "bumpVersions": [
     {
       "description": "Chaque mise à jour incrémente le patch de tous les add-ons du dépôt (1.2.3 -> 1.2.4)",
@@ -33,13 +40,21 @@
   ],
   "packageRules": [
     {
-      "description": "Regrouper les correctifs dans une seule PR",
+      "description": "Correctifs, épinglages et digests regroupés dans une seule PR, fusionnée automatiquement",
       "matchUpdateTypes": [
         "patch",
         "pin",
         "digest"
       ],
-      "groupName": "correctifs groupés"
+      "groupName": "correctifs groupés",
+      "automerge": true
+    },
+    {
+      "description": "Mineures regroupées dans une PR à relire : elles peuvent changer un comportement",
+      "matchUpdateTypes": [
+        "minor"
+      ],
+      "groupName": "mineures groupées"
     },
     {
       "description": "Une seule PR pour toutes les GitHub Actions",
@@ -47,6 +62,25 @@
         "github-actions"
       ],
       "groupName": "GitHub Actions"
+    },
+    {
+      "description": "Les majeures arrivent seules et étiquetées : jamais fusionnées automatiquement",
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "addLabels": [
+        "major"
+      ],
+      "automerge": false
+    },
+    {
+      "description": "Les correctifs de sécurité ignorent le délai de trois jours et se fusionnent seuls (règle en dernier, donc prioritaire)",
+      "matchCategories": [
+        "security"
+      ],
+      "groupName": "correctifs de sécurité",
+      "minimumReleaseAge": null,
+      "automerge": true
     }
   ],
   "customManagers": [

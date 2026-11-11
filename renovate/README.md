@@ -15,14 +15,18 @@ journaux et les sauvegardes.
 
 ## Comment ça marche
 
-L'image Docker officielle `ghcr.io/renovatebot/renovate` est réutilisée telle quelle. Deux ajouts :
+L'image Docker officielle `ghcr.io/renovatebot/renovate` est réutilisée telle quelle. Trois ajouts :
 
 - `run.sh` : Renovate est un outil qui tourne puis s'arrête, alors qu'un add-on doit rester
   vivant. Ce script lance un passage au démarrage, puis un à chaque échéance choisie dans l'onglet
   Configuration (jour, heure et fuseau), et répond proprement à un arrêt demandé par Home
   Assistant ;
 - `scripts/changelog.mjs` : le script embarqué dans l'add-on, qui ajoute la ligne au
-  `CHANGELOG.md`. Comme il est **dans l'image**, vos dépôts n'ont pas besoin de le contenir.
+  `CHANGELOG.md`. Comme il est **dans l'image**, vos dépôts n'ont pas besoin de le contenir ;
+- `scripts/ui.mjs` : le panneau latéral (ingress). Un serveur Node sans dépendance qui lit
+  `/data/options.json` et `/data/last-run.json`, interroge l'API GitHub et affiche les pull requests
+  ouvertes par dépôt, avec l'heure du dernier passage. Lecture seule, administrateurs seulement,
+  aucun jeton côté navigateur.
 
 Les options de l'onglet Configuration sont lues dans `/data/options.json` et transformées en
 variables d'environnement Renovate. Les deux variables qui autorisent la commande de mise à jour
@@ -70,9 +74,10 @@ Un fichier `renovate.json` à la racine de chaque dépôt, deux modèles selon l
 
 ### Projet ordinaire
 
-`projet-renovate.json` ajoute le tableau de bord des dépendances (`:dependencyDashboard`), écrit
-le changelog à la racine (`CHANGELOG.md`) et exige une validation manuelle depuis le tableau de
-bord pour chaque mise à jour majeure.
+`projet-renovate.json` écrit le changelog à la racine, regroupe les PR et étiquette les mises à
+jour majeures pour qu'elles soient relues une par une. Aucun des deux modèles n'active le tableau
+de bord « Dependency Dashboard » : les mises à jour actionnables arrivent directement en PR, et le
+panneau de l'add-on les affiche.
 
 Si le projet a un fichier de version à lui (`.release-version`, `VERSION`, une version dans un
 `package.json`…), collez-y le bloc `bumpVersions` du modèle add-on en adaptant `filePatterns`.

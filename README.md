@@ -25,6 +25,16 @@ modifications. Vous fusionnez, Home Assistant propose la mise à jour de l'add-o
 La suite (options détaillées, préparation de vos dépôts, limites) est dans
 [`renovate/README.md`](renovate/README.md) et dans l'onglet Documentation de l'add-on.
 
+## Un panneau dans Home Assistant
+
+L'add-on ajoute une page dans la barre latérale (icône **Renovate**) : les pull requests ouvertes
+par Renovate, dépôt par dépôt, et l'heure du dernier passage comme du prochain. Elle est en lecture
+seule et réservée aux administrateurs ; le jeton GitHub ne quitte jamais l'add-on.
+
+Ce panneau remplace le « Dependency Dashboard » de GitHub, dont les modèles fournis ne se servent
+plus : les mises à jour actionnables arrivent directement en PR, groupées par famille, ce qui évite
+un ticket à maintenir dans chaque dépôt.
+
 ## Quels dépôts lui confier
 
 Dans l'onglet Configuration, `repositories` accepte une liste `compte/dépôt` :

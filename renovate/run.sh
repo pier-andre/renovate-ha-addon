@@ -8,6 +8,10 @@ set -u
 DATA_DIR="${DATA_DIR:-/data}"
 OPTIONS_FILE="${DATA_DIR}/options.json"
 CHANGELOG_SCRIPT="/opt/renovate-scripts/changelog.mjs"
+UI_SCRIPT="/opt/renovate-scripts/ui.mjs"
+STATE_FILE="${DATA_DIR}/last-run.json"
+UI_PORT="8099"
+UI_PID=""
 
 log() {
     echo "[$(date -u '+%Y-%m-%dT%H:%M:%SZ')] $*"
@@ -159,16 +163,52 @@ else
     log "ATTENTION : ${CHANGELOG_SCRIPT} absent, les CHANGELOG ne seront pas mis à jour."
 fi
 
-run_once() {
-    log "début d'un passage Renovate"
-    if renovate; then
-        log "passage terminé sans erreur"
-    else
-        log "passage terminé en erreur (code $?) : voir les lignes ci-dessus"
-    fi
+# ---- État des passages (lu par le panneau latéral) ------------------------
+# /data/last-run.json survit aux redémarrages : contrairement au journal, il
+# permet au panneau de dire quand a eu lieu le dernier passage et s'il a échoué.
+STATE_STARTED=""
+STATE_FINISHED=""
+STATE_CODE=""
+STATE_NEXT=""
+
+write_state() {
+    printf '{"started":"%s","finished":"%s","exit_code":%s,"next_run":"%s"}\n' \
+        "${STATE_STARTED}" "${STATE_FINISHED}" "${STATE_CODE:-null}" "${STATE_NEXT}" \
+        > "${STATE_FILE}.tmp" 2>/dev/null && mv "${STATE_FILE}.tmp" "${STATE_FILE}" 2>/dev/null
 }
 
-trap 'log "arrêt demandé"; exit 0' TERM INT
+# ---- Panneau latéral (ingress) -------------------------------------------
+# Renovate n'a pas d'interface : ce petit serveur Node affiche les PR ouvertes et
+# l'état du dernier passage. Il lit le jeton dans /data/options.json et ne
+# l'envoie jamais au navigateur.
+if [ -f "${UI_SCRIPT}" ]; then
+    # Sortie dans un fichier : Renovate est déjà bavard, le panneau n'a rien à
+    # dire tant qu'il répond. Son journal reste consultable en cas de doute.
+    UI_PORT="${UI_PORT}" OPTIONS_FILE="${OPTIONS_FILE}" STATE_FILE="${STATE_FILE}" \
+        node "${UI_SCRIPT}" >> "${DATA_DIR}/panel.log" 2>&1 &
+    UI_PID=$!
+    log "panneau latéral démarré sur le port ${UI_PORT} (journal : ${DATA_DIR}/panel.log)"
+else
+    log "ATTENTION : ${UI_SCRIPT} absent, le panneau latéral ne sera pas disponible."
+fi
+
+run_once() {
+    STATE_STARTED="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+    STATE_FINISHED=""
+    write_state
+    log "début d'un passage Renovate"
+    if renovate; then
+        STATE_CODE=0
+        log "passage terminé sans erreur"
+    else
+        STATE_CODE=$?
+        log "passage terminé en erreur (code ${STATE_CODE}) : voir les lignes ci-dessus"
+    fi
+    STATE_FINISHED="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+    write_state
+}
+
+trap 'log "arrêt demandé"; [ -n "${UI_PID}" ] && kill "${UI_PID}" 2>/dev/null; exit 0' TERM INT
 
 if [ "$(read_option run_on_start)" = "false" ]; then
     log "run_on_start=false : premier passage à la prochaine échéance planifiée."
@@ -180,6 +220,8 @@ while true; do
     SLOT="$(next_slot)"
     WAIT=$(( SLOT - $(date +%s) ))
     [ "${WAIT}" -ge 30 ] || WAIT=30
+    STATE_NEXT="$(date -u -d "@${SLOT}" '+%Y-%m-%dT%H:%M:%SZ')"
+    write_state
     log "prochaine exécution : $(date -d "@${SLOT}" '+%A %d/%m/%Y à %H:%M') (${TZ_VALUE}), dans $((WAIT / 60)) min"
     sleep "${WAIT}" &
     wait $!

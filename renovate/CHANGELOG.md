@@ -2,6 +2,13 @@
 
 ## Non publié
 
+## 1.2.0
+
+- Nouveau panneau latéral (ingress) : une page **Renovate** dans la barre latérale de Home Assistant liste, dépôt par dépôt, les pull requests ouvertes par Renovate (numéro, titre, âge, étiquettes) avec un lien vers GitHub, ainsi que l'heure du dernier passage et celle du prochain. Elle est en lecture seule : le jeton GitHub n'est jamais envoyé au navigateur et rien ne peut être fusionné ni relancé depuis la page.
+- `run.sh` écrit l'état de chaque passage dans `/data/last-run.json` (début, fin, code de sortie, prochaine échéance). Le panneau peut donc répondre à « est-ce que ça a tourné, et est-ce que ça a échoué ? » sans remonter tout le journal, et l'information survit à un redémarrage.
+- Le panneau n'écoute qu'en ingress (port 8099, `panel_admin: true`) : aucune ouverture de port sur le réseau local, aucune option supplémentaire à configurer.
+- Les modèles `repo-renovate.json` / `projet-renovate.json` et le `renovate.json` de ce dépôt abandonnent le tableau de bord GitHub (« Dependency Dashboard ») au profit d'une configuration sans entretien : correctifs et mineures regroupés, majeur(e)s étiquetées, fusion automatique des seuls correctifs après trois jours.
+
 ## 1.1.0
 
 - Planification réglable depuis l'onglet Configuration : `schedule_days` (tous les jours, un jour précis, la semaine ou le week-end), `schedule_time` (`HH:MM`) et `timezone`. L'add-on se réveille à l'échéance choisie au lieu de compter des heures depuis son démarrage : une heure fixe est enfin respectée.
