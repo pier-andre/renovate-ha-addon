@@ -4,6 +4,8 @@ Add-on Home Assistant qui fait tourner **Renovate** en continu, avec deux choses
 l'application hébergée par Mend ne fait pas : incrémenter le `version:` de vos add-ons et écrire
 une ligne dans leur `CHANGELOG.md` à chaque pull request.
 
+[![Ouvrir votre instance Home Assistant et afficher le dialogue d’ajout du dépôt avec l’URL pré-remplie.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fpier-andre%2Frenovate-ha-addon) [![Ouvrir votre instance Home Assistant et afficher la page de l’add-on Renovate.](https://my.home-assistant.io/badges/supervisor_app.svg)](https://my.home-assistant.io/redirect/supervisor_app/?app=e4da9f39_renovate&repository_url=https%3A%2F%2Fgithub.com%2Fpier-andre%2Frenovate-ha-addon)
+
 ## Ce que ça donne
 
 Une fois installé et un jeton GitHub fourni, Renovate ouvre des pull requests pour mettre à jour
