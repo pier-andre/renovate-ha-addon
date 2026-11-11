@@ -3,7 +3,7 @@
 # script de démarrage (boucle périodique) et le script d'écriture du CHANGELOG.
 # Version épinglée volontairement : la construction est reproductible, et Renovate
 # met cette ligne à jour lui-même (customManager dans repo-renovate.json).
-ARG BUILD_FROM=ghcr.io/renovatebot/renovate:44.232.0
+ARG BUILD_FROM=ghcr.io/renovatebot/renovate:44.234.1
 FROM ${BUILD_FROM}
 
 # Renovate installe ses outils à la demande (binarySource=install) dans /usr/local,
