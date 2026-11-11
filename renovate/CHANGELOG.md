@@ -2,6 +2,11 @@
 
 ## Non publié
 
+## 1.2.1
+
+- Fuseau par défaut passé de `Europe/Paris` à `America/Toronto`, pour l'option `timezone` comme pour le repli utilisé quand un fuseau inconnu est saisi. Sans effet sur les installations existantes : le Supervisor conserve la valeur déjà enregistrée dans l'onglet Configuration.
+- Documentation précisée sur l'accès au panneau : il est réservé aux comptes administrateurs (`panel_admin: true`), le propriétaire de l'instance en fait partie, et il n'existe pas de mode « propriétaire seul ».
+
 ## 1.2.0
 
 - Nouveau panneau latéral (ingress) : une page **Renovate** dans la barre latérale de Home Assistant liste, dépôt par dépôt, les pull requests ouvertes par Renovate (numéro, titre, âge, étiquettes) avec un lien vers GitHub, ainsi que l'heure du dernier passage et celle du prochain. Elle est en lecture seule : le jeton GitHub n'est jamais envoyé au navigateur et rien ne peut être fusionné ni relancé depuis la page.

@@ -96,8 +96,8 @@ TZ_VALUE="$(read_option timezone)"
 if [ -z "${TZ_VALUE}" ] \
     || ! printf '%s' "${TZ_VALUE}" | grep -Eq '^[A-Za-z0-9_+/-]+$' \
     || [ ! -f "/usr/share/zoneinfo/${TZ_VALUE}" ]; then
-    [ -n "${TZ_VALUE}" ] && log "timezone « ${TZ_VALUE} » inconnu : Europe/Paris utilisé."
-    TZ_VALUE="Europe/Paris"
+    [ -n "${TZ_VALUE}" ] && log "timezone « ${TZ_VALUE} » inconnu : America/Toronto utilisé."
+    TZ_VALUE="America/Toronto"
 fi
 export TZ="${TZ_VALUE}"
 # Utile si un dépôt surveillé définit malgré tout son propre `schedule`.

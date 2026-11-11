@@ -55,7 +55,9 @@ La planification se règle **dans l'add-on**, dans l'onglet Configuration :
 - `schedule_days` : `all` (tous les jours), `weekdays` (lundi → vendredi), `weekends`, ou un seul
   jour (`mon` … `sun`) ;
 - `schedule_time` : l'heure du passage, au format `HH:MM` ;
-- `timezone` : le fuseau dans lequel cette heure est lue (`Europe/Paris` par défaut).
+- `timezone` : le fuseau dans lequel cette heure est lue (`America/Toronto` par défaut). Le
+  nom doit être un fuseau IANA : `America/Toronto`, `Europe/Paris`, `UTC`… Un nom inconnu fait
+  démarrer l'add-on sur `America/Toronto`, avec une ligne dans le journal.
 
 L'add-on calcule l'échéance suivante, dort jusque-là, lance un passage, puis recommence. Un
 passage hebdomadaire le lundi à 4 h s'obtient donc avec `schedule_days: mon` et
@@ -74,14 +76,22 @@ c'est normal.
 
 ## 7. Le panneau latéral
 
-Une fois l'add-on démarré, l'icône **Renovate** apparaît dans la barre latérale de Home Assistant
-(réservée aux administrateurs). La page répond à deux questions :
+Une fois l'add-on démarré, l'icône **Renovate** apparaît dans la barre latérale de Home Assistant.
+La page répond à deux questions :
 
 - **Où en sont mes dépôts ?** pour chaque dépôt de `repositories`, les pull requests ouvertes par
   Renovate (numéro, titre, âge, brouillon, étiquettes), avec un lien vers GitHub ;
 - **Est-ce que ça a tourné ?** l'heure du dernier passage, son code de sortie, et l'heure du
   prochain. Ces informations viennent de `/data/last-run.json`, écrit à chaque passage : elles
   survivent à un redémarrage, contrairement au journal.
+
+**Qui voit le panneau ?** Uniquement les comptes **administrateurs** : c'est le rôle de
+`panel_admin: true` dans `config.yaml`, et c'est le réglage le plus strict que Home Assistant
+propose pour un panneau d'add-on. Le propriétaire de l'instance (`Owner`) est toujours
+administrateur, donc il voit le panneau sans rien configurer ; un compte non administrateur ne le
+voit pas du tout, l'icône n'apparaît pas dans sa barre latérale. Il n'existe pas de mode
+« propriétaire seul » : si vous nommez d'autres administrateurs (Paramètres → Personnes), ils
+verront le panneau eux aussi — ce qui est sans risque, puisqu'il est en lecture seule.
 
 La page est en **lecture seule**. Le jeton GitHub reste dans l'add-on : il n'est jamais envoyé au
 navigateur, et rien ne peut être fusionné, fermé ou relancé depuis cette page. Les appels à GitHub
@@ -122,7 +132,7 @@ Si vous préférez l'ancien fonctionnement : remettez `"dependencyDashboard": tr
 | `run_on_start` | `true` | Lancer un passage dès le démarrage de l'add-on. |
 | `schedule_days` | `all` | `all`, `weekdays`, `weekends`, ou un jour : `mon`, `tue`, `wed`, `thu`, `fri`, `sat`, `sun`. |
 | `schedule_time` | `04:00` | Heure du passage, `HH:MM`, lue dans `timezone`. |
-| `timezone` | `Europe/Paris` | Fuseau utilisé pour `schedule_time`. |
+| `timezone` | `America/Toronto` | Fuseau utilisé pour `schedule_time`. |
 | `dry_run` | `false` | Simulation : Renovate analyse et écrit dans le journal, sans créer de PR. |
 | `log_level` | `info` | `debug` si quelque chose ne se passe pas comme prévu. |
 
