@@ -19,7 +19,9 @@ pour que Renovate puisse modifier les fichiers de `.github/workflows`).
 ## 2. Choisir les dépôts
 
 - `repositories` vide → Renovate travaille sur **tous** les dépôts auxquels le jeton a accès.
-  Chaque dépôt reçoit d'abord une PR « Configure Renovate » : fermez-la pour l'ignorer.
+  Chaque dépôt reçoit d'abord une PR « Configure Renovate » : fermez-la pour l'ignorer. Le panneau
+  latéral suit alors automatiquement les dépôts actifs que le jeton voit (même règle que Renovate :
+  forks et dépôts archivés écartés), sans rien lister à la main.
 - Sinon, ajoutez les dépôts un par un, au format `compte/dépôt`.
 
 ## 3. Préparer chaque dépôt
@@ -79,8 +81,9 @@ c'est normal.
 Une fois l'add-on démarré, l'icône **Renovate** apparaît dans la barre latérale de Home Assistant.
 La page répond à deux questions :
 
-- **Où en sont mes dépôts ?** pour chaque dépôt de `repositories`, les pull requests ouvertes par
-  Renovate (numéro, titre, âge, brouillon, étiquettes), avec un lien vers GitHub ;
+- **Où en sont mes dépôts ?** pour chaque dépôt de `repositories` — ou, si cette liste est vide,
+  pour chaque dépôt actif accessible au jeton, découvert automatiquement —, les pull requests
+  ouvertes par Renovate (numéro, titre, âge, brouillon, étiquettes), avec un lien vers GitHub ;
 - **Est-ce que ça a tourné ?** l'heure du dernier passage, son code de sortie, et l'heure du
   prochain. Ces informations viennent de `/data/last-run.json`, écrit à chaque passage : elles
   survivent à un redémarrage, contrairement au journal.

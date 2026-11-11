@@ -27,7 +27,7 @@ async function readJson(path) {
   }
 }
 
-async function github(path, token) {
+async function request(path, token) {
   const response = await fetch(API + path, {
     headers: {
       Authorization: "Bearer " + token,
@@ -44,7 +44,11 @@ async function github(path, token) {
           : "";
     throw new Error("HTTP " + response.status + hint);
   }
-  return response.json();
+  return response;
+}
+
+async function github(path, token) {
+  return (await request(path, token)).json();
 }
 
 // `repositories` est une liste d'options Home Assistant : on ignore tout ce qui
@@ -54,6 +58,35 @@ function watchedRepos(options) {
   return list
     .map((value) => String(value).trim())
     .filter((value) => /^[A-Za-z0-9._-]+\/[A-Za-z0-9._-]+$/.test(value));
+}
+
+// Repli quand `repositories` est vide : Renovate parcourt déjà tous les dépôts
+// accessibles au jeton, le panneau fait de même plutôt que d'afficher une page
+// vide en réclamant une liste. Les dépôts archivés et les forks sont écartés,
+// comme Renovate les ignore par défaut.
+const DISCOVER_PAGES = 5;
+
+function nextLink(header) {
+  if (!header) return "";
+  const match = /<([^>]+)>;\s*rel="next"/.exec(header);
+  if (!match) return "";
+  const url = new URL(match[1]);
+  return url.pathname + url.search;
+}
+
+async function discoverRepos(token) {
+  const names = [];
+  let path =
+    "/user/repos?per_page=100&affiliation=owner,collaborator,organization_member&sort=updated";
+  for (let page = 0; page < DISCOVER_PAGES && path; page += 1) {
+    const response = await request(path, token);
+    for (const item of await response.json()) {
+      if (!item || !item.full_name || item.archived || item.fork) continue;
+      names.push(item.full_name);
+    }
+    path = nextLink(response.headers.get("link"));
+  }
+  return names;
 }
 
 function ageInDays(iso) {
@@ -68,6 +101,7 @@ async function collect() {
     generated_at: new Date().toISOString(),
     last_run: await readJson(STATE_FILE),
     repositories: watchedRepos(options),
+    repositories_source: "options",
     repos: [],
     problems: [],
   };
@@ -79,10 +113,23 @@ async function collect() {
     return payload;
   }
   if (!payload.repositories.length) {
-    payload.problems.push(
-      "Aucun dépôt dans `repositories` : Renovate parcourt bien tous les dépôts auxquels le jeton a accès, mais ce panneau ne peut interroger que ceux qu'on lui liste. Ajoutez-les dans l'onglet Configuration, un par ligne au format `compte/dépôt` (par exemple `pier-andre/ollaya-ha-addon`), puis redémarrez l'add-on.",
-    );
-    return payload;
+    payload.repositories_source = "autodiscover";
+    try {
+      payload.repositories = await discoverRepos(token);
+    } catch (error) {
+      payload.problems.push(
+        "Découverte automatique des dépôts impossible : " +
+          error.message +
+          ". Renseignez `repositories` dans l'onglet Configuration pour afficher des dépôts précis.",
+      );
+      return payload;
+    }
+    if (!payload.repositories.length) {
+      payload.problems.push(
+        "Le jeton ne donne accès à aucun dépôt actif (hors forks et dépôts archivés) : vérifiez ses droits, ou renseignez `repositories` à la main.",
+      );
+      return payload;
+    }
   }
 
   for (const repo of payload.repositories) {
@@ -202,6 +249,9 @@ footer { margin-top: 28px; color: #6b7280; font-size: .8rem; }
         (data.problems || []).forEach(function (problem) {
           alerts.appendChild(el("p", "alert", problem));
         });
+        if (data.repositories_source === "autodiscover") {
+          main.appendChild(el("p", "muted", "Option \`repositories\` vide : les dépôts ci-dessous ont été découverts automatiquement via le jeton (forks et dépôts archivés ignorés)."));
+        }
         if (!(data.repos || []).length) {
           main.appendChild(el("p", "muted", "Aucun dépôt surveillé pour le moment."));
         }

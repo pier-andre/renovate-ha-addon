@@ -2,6 +2,10 @@
 
 ## Non publié
 
+## 1.2.4
+
+- Le panneau ne réclame plus une liste de dépôts quand l'option `repositories` est vide : il reprend ceux que le jeton voit, comme Renovate le fait déjà. Les forks et les dépôts archivés sont écartés (Renovate les ignore aussi par défaut), et une mention l'indique au-dessus de la liste. Une seule requête paginée en plus (jusqu'à 500 dépôts) par rafraîchissement. `repositories` reste la façon de restreindre le panneau à quelques dépôts précis.
+
 ## 1.2.3
 
 - Message du panneau quand `repositories` est vide : il explique désormais que Renovate parcourt malgré tout tous les dépôts accessibles au jeton, que le panneau ne peut afficher que ceux de la liste, et où l'ajouter (onglet Configuration, format `compte/dépôt`, redémarrage). Aucun changement de comportement : seul le texte affiché diffère, mais l'image doit être reconstruite pour qu'il s'affiche.
