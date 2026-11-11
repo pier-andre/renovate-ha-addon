@@ -1,0 +1,37 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended", ":timezone(Europe/Paris)", ":dependencyDashboard"],
+  "schedule": ["before 7am on monday"],
+  "prHourlyLimit": 2,
+
+  "postUpgradeTasks": {
+    "commands": [
+      "node /opt/renovate-scripts/changelog.mjs {{{depName}}} {{{currentVersion}}} {{{newVersion}}} {{{updateType}}}"
+    ],
+    "fileFilters": ["CHANGELOG.md"],
+    "executionMode": "branch"
+  },
+
+  "prBodyNotes": [
+    "{{#if isMajor}}:warning: **Mise à jour majeure** : vérifiez les notes de version avant de fusionner.{{/if}}",
+    "Une ligne a été ajoutée dans `CHANGELOG.md` (section « Non publié »)."
+  ],
+
+  "packageRules": [
+    {
+      "description": "Regrouper les correctifs dans une seule PR",
+      "matchUpdateTypes": ["patch", "pin", "digest"],
+      "groupName": "correctifs groupés"
+    },
+    {
+      "description": "Une seule PR pour toutes les GitHub Actions",
+      "matchManagers": ["github-actions"],
+      "groupName": "GitHub Actions"
+    },
+    {
+      "description": "Les mises à jour majeures arrivent séparément, pour être relues une par une",
+      "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true
+    }
+  ]
+}

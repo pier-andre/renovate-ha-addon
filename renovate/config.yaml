@@ -1,0 +1,26 @@
+name: Renovate
+version: "1.0.0"
+slug: renovate
+description: Maintient vos dépôts GitHub à jour, avec incrément de version et journal des modifications dans chaque PR
+url: https://github.com/VOTRE_COMPTE/renovate-ha-addon/tree/main/renovate
+arch:
+  - amd64
+  - aarch64
+startup: application
+boot: auto
+init: false
+options:
+  github_token: ""
+  repositories: []
+  run_on_start: true
+  interval_hours: 168
+  dry_run: false
+  log_level: info
+schema:
+  github_token: password
+  repositories:
+    - str
+  run_on_start: bool
+  interval_hours: int(1,8760)
+  dry_run: bool
+  log_level: list(debug|info|warn|error)

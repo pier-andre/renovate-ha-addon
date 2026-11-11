@@ -1,0 +1,50 @@
+# Renovate pour Home Assistant
+
+Add-on Home Assistant qui fait tourner **Renovate** en continu, avec deux choses en plus que
+l'application hébergée par Mend ne fait pas : incrémenter le `version:` de vos add-ons et écrire
+une ligne dans leur `CHANGELOG.md` à chaque pull request.
+
+## Ce que ça donne
+
+Une fois installé et un jeton GitHub fourni, Renovate ouvre des pull requests pour mettre à jour
+les dépendances de vos dépôts, la version de Node.js de vos Dockerfile, vos GitHub Actions. Pour
+un dépôt d'add-ons, chaque PR fait aussi avancer la version et remplit le journal des
+modifications. Vous fusionnez, Home Assistant propose la mise à jour de l'add-on.
+
+## Installation
+
+1. Ajoutez ce dépôt dans Home Assistant : **Paramètres → Modules complémentaires → Boutique**,
+   menu ⋮ → **Dépôts**, puis l'URL de ce dépôt.
+2. **Renovate** apparaît dans la boutique → **Installer** (quelques minutes : l'image est
+   téléchargée).
+3. Onglet **Configuration** : collez un jeton GitHub dans `github_token`, avec les droits `repo`
+   **et** `workflow`.
+4. **Démarrer**. Pour un premier essai sans risque, laissez `dry_run` à `true`.
+
+La suite (options détaillées, préparation de vos dépôts, limites) est dans
+[`renovate/README.md`](renovate/README.md) et dans l'onglet Documentation de l'add-on.
+
+## Préparer vos dépôts
+
+Deux modèles sont fournis, à copier à la racine d'un dépôt sous le nom `renovate.json` :
+
+- [`renovate/repo-renovate.json`](renovate/repo-renovate.json) — pour un dépôt d'add-ons ;
+- [`renovate/projet-renovate.json`](renovate/projet-renovate.json) — pour un projet GitHub ordinaire.
+
+## Pourquoi un dépôt séparé
+
+Cet add-on embarque un programme sous AGPL-3.0 (Renovate), donc sa licence est imposée. Un dépôt
+par add-on permet aussi de reconstruire et de mettre à jour l'un sans toucher à l'autre, et de
+garder des historiques et des journaux lisibles. L'add-on Freebuff vit de son côté.
+
+## Limites
+
+- `amd64` et `aarch64` uniquement (pas de Raspberry Pi 32 bits).
+- Jusqu'à ~1 Go de RAM au pic sur un gros dépôt.
+- L'add-on tourne en root et se construit à partir de l'image officielle Renovate (`latest`).
+- Emballage communautaire : ni maintenu par Home Assistant, ni par Renovate/Mend.
+
+## Licence
+
+AGPL-3.0, voir [`LICENSE`](LICENSE). L'image de cet add-on contient Renovate, publié sous
+AGPL-3.0 par Renovate/Mend : l'emballage se place sous les mêmes termes.

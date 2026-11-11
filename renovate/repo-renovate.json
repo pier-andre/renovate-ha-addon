@@ -1,0 +1,83 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":timezone(Europe/Paris)"
+  ],
+  "schedule": [
+    "before 7am on monday"
+  ],
+  "prHourlyLimit": 2,
+  "bumpVersions": [
+    {
+      "description": "Chaque mise à jour incrémente le patch de tous les add-ons du dépôt (1.2.3 -> 1.2.4)",
+      "filePatterns": [
+        "*/config.yaml"
+      ],
+      "matchStrings": [
+        "(?:^|\\n)version:[ \\t]*\"?(?<version>\\d+\\.\\d+\\.\\d+)\"?"
+      ],
+      "bumpType": "patch"
+    }
+  ],
+  "postUpgradeTasks": {
+    "commands": [
+      "node /opt/renovate-scripts/changelog.mjs {{{depName}}} {{{currentVersion}}} {{{newVersion}}} {{{updateType}}} addons"
+    ],
+    "fileFilters": [
+      "**/CHANGELOG.md"
+    ],
+    "executionMode": "branch"
+  },
+  "prBodyNotes": [
+    "{{#if isMajor}}:warning: **Mise à jour majeure** : vérifiez les notes de version avant de fusionner.{{/if}}",
+    "Cette PR incrémente le `version:` de chaque add-on du dépôt et ajoute une ligne dans le `CHANGELOG.md` de chaque dossier d'add-on. Après fusion, Home Assistant proposera la mise à jour (menu ⋮ → Vérifier les mises à jour).",
+    "Cette PR met aussi à jour l'image de base dans le `Dockerfile` ; la version de l'add-on et le `CHANGELOG.md` suivent automatiquement."
+  ],
+  "packageRules": [
+    {
+      "description": "Regrouper les correctifs dans une seule PR",
+      "matchUpdateTypes": [
+        "patch",
+        "pin",
+        "digest"
+      ],
+      "groupName": "correctifs groupés"
+    },
+    {
+      "description": "Une seule PR pour toutes les GitHub Actions",
+      "matchManagers": [
+        "github-actions"
+      ],
+      "groupName": "GitHub Actions"
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Version de Node.js passée en ARG dans les Dockerfile des add-ons",
+      "managerFilePatterns": [
+        "/(^|/)Dockerfile$/"
+      ],
+      "matchStrings": [
+        "ARG NODE_VERSION=(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "nodejs/node",
+      "extractVersionTemplate": "^v(?<version>.*)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Image de base Renovate épinglée dans le Dockerfile de l'add-on",
+      "managerFilePatterns": [
+        "/(^|/)Dockerfile$/"
+      ],
+      "matchStrings": [
+        "ARG BUILD_FROM=ghcr\\.io/renovatebot/renovate:(?<currentValue>[0-9][0-9.]*)"
+      ],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "ghcr.io/renovatebot/renovate",
+      "versioningTemplate": "docker"
+    }
+  ]
+}
