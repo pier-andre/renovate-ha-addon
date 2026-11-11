@@ -10,6 +10,12 @@ FROM ${BUILD_FROM}
 # et /data appartient à root : on reste donc en root, comme la plupart des add-ons.
 USER root
 
+# tzdata : sans lui, `date` ignorerait l'option `timezone` en silence et
+# l'heure planifiée serait décalée.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends tzdata \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY run.sh /run.sh
 COPY scripts/changelog.mjs /opt/renovate-scripts/changelog.mjs
 RUN chmod 0755 /run.sh

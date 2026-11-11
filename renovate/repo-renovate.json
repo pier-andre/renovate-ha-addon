@@ -4,9 +4,6 @@
     "config:recommended",
     ":timezone(Europe/Paris)"
   ],
-  "schedule": [
-    "before 7am on monday"
-  ],
   "prHourlyLimit": 2,
   "bumpVersions": [
     {

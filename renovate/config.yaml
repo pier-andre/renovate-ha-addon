@@ -1,5 +1,5 @@
 name: Renovate
-version: "1.0.1"
+version: "1.1.0"
 slug: renovate
 description: Maintient vos dépôts GitHub à jour, avec incrément de version et journal des modifications dans chaque PR
 url: https://github.com/pier-andre/renovate-ha-addon/tree/main/renovate
@@ -13,7 +13,9 @@ options:
   github_token: ""
   repositories: []
   run_on_start: true
-  interval_hours: 168
+  schedule_days: all
+  schedule_time: "04:00"
+  timezone: Europe/Paris
   dry_run: false
   log_level: info
 schema:
@@ -21,6 +23,8 @@ schema:
   repositories:
     - str
   run_on_start: bool
-  interval_hours: int(1,8760)
+  schedule_days: list(all|weekdays|weekends|mon|tue|wed|thu|fri|sat|sun)
+  schedule_time: str
+  timezone: str
   dry_run: bool
   log_level: list(debug|info|warn|error)

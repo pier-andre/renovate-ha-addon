@@ -18,8 +18,9 @@ journaux et les sauvegardes.
 L'image Docker officielle `ghcr.io/renovatebot/renovate` est réutilisée telle quelle. Deux ajouts :
 
 - `run.sh` : Renovate est un outil qui tourne puis s'arrête, alors qu'un add-on doit rester
-  vivant. Ce script lance un passage au démarrage, puis recommence toutes les `interval_hours`
-  heures, et répond proprement à un arrêt demandé par Home Assistant ;
+  vivant. Ce script lance un passage au démarrage, puis un à chaque échéance choisie dans l'onglet
+  Configuration (jour, heure et fuseau), et répond proprement à un arrêt demandé par Home
+  Assistant ;
 - `scripts/changelog.mjs` : le script embarqué dans l'add-on, qui ajoute la ligne au
   `CHANGELOG.md`. Comme il est **dans l'image**, vos dépôts n'ont pas besoin de le contenir.
 
@@ -128,7 +129,8 @@ Pour monter de version à la main, il suffit de changer le numéro dans cette li
 - extraction réelle par Renovate (`--dry-run=extract`) : la dépendance
   `ghcr.io/renovatebot/renovate` est bien trouvée dans le `Dockerfile`, à la version épinglée ;
 - `run.sh` exécuté pour de vrai avec un faux `renovate` et un faux `/data` : lecture des options,
-  jeton manquant, mode simulation, liste de dépôts, intervalle invalide, arrêt propre sur signal ;
+  jeton manquant, mode simulation, liste de dépôts, calcul de la prochaine échéance (tous les
+  jours, jour unique, semaine, week-end), heures et fuseaux invalides, arrêt propre sur signal ;
 - `changelog.mjs` testé sur cinq cas (fichier absent, fichier existant, plusieurs PR successives,
   relance identique, arguments manquants).
 

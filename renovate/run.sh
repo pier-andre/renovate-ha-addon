@@ -77,11 +77,81 @@ if [ "$(read_option dry_run)" = "true" ]; then
     log "mode simulation actif : aucune PR ni commit ne sera créé."
 fi
 
-INTERVAL="$(read_option interval_hours)"
-case "${INTERVAL}" in
-    ''|*[!0-9]*) INTERVAL=168 ;;
+# ---- Planification -------------------------------------------------------
+# Jour + heure remplacent l'ancien intervalle en heures : l'add-on se réveille à
+# l'échéance choisie au lieu de compter des heures depuis son démarrage, ce qui
+# est la seule façon de respecter une heure fixe. C'est donc ici, et non dans les
+# dépôts surveillés, que la planification vit.
+SCHEDULE_TIME="$(read_option schedule_time)"
+if ! printf '%s' "${SCHEDULE_TIME}" | grep -Eq '^([01][0-9]|2[0-3]):[0-5][0-9]$'; then
+    [ -n "${SCHEDULE_TIME}" ] && log "schedule_time « ${SCHEDULE_TIME} » invalide (HH:MM attendu) : 04:00 utilisé."
+    SCHEDULE_TIME="04:00"
+fi
+
+TZ_VALUE="$(read_option timezone)"
+if [ -z "${TZ_VALUE}" ] \
+    || ! printf '%s' "${TZ_VALUE}" | grep -Eq '^[A-Za-z0-9_+/-]+$' \
+    || [ ! -f "/usr/share/zoneinfo/${TZ_VALUE}" ]; then
+    [ -n "${TZ_VALUE}" ] && log "timezone « ${TZ_VALUE} » inconnu : Europe/Paris utilisé."
+    TZ_VALUE="Europe/Paris"
+fi
+export TZ="${TZ_VALUE}"
+# Utile si un dépôt surveillé définit malgré tout son propre `schedule`.
+export RENOVATE_TIMEZONE="${TZ_VALUE}"
+
+SCHEDULE_DAYS="$(read_option schedule_days)"
+[ -n "${SCHEDULE_DAYS}" ] || SCHEDULE_DAYS="all"
+case "${SCHEDULE_DAYS}" in
+    mon) DAY_INDEXES="1" ;;
+    tue) DAY_INDEXES="2" ;;
+    wed) DAY_INDEXES="3" ;;
+    thu) DAY_INDEXES="4" ;;
+    fri) DAY_INDEXES="5" ;;
+    sat) DAY_INDEXES="6" ;;
+    sun) DAY_INDEXES="0" ;;
+    weekdays) DAY_INDEXES="1 2 3 4 5" ;;
+    weekends) DAY_INDEXES="0 6" ;;
+    *) DAY_INDEXES="0 1 2 3 4 5 6" ;;
 esac
-[ "${INTERVAL}" -ge 1 ] || INTERVAL=168
+
+# GNU date attend des noms de jours, pas des numéros.
+day_name() {
+    case "$1" in
+        0) echo sunday ;;
+        1) echo monday ;;
+        2) echo tuesday ;;
+        3) echo wednesday ;;
+        4) echo thursday ;;
+        5) echo friday ;;
+        6) echo saturday ;;
+    esac
+}
+
+# Prochaine échéance en secondes epoch : pour chaque jour autorisé on demande à
+# `date` la prochaine occurrence de l'heure voulue, on décale d'une semaine
+# celles déjà passées, et on garde la plus proche. « Tous les jours » se traite
+# comme sept candidats, sans cas particulier.
+next_slot() {
+    local now best target index name
+    now="$(date +%s)"
+    best=""
+    for index in ${DAY_INDEXES}; do
+        name="$(day_name "${index}")"
+        target="$(date -d "${name} ${SCHEDULE_TIME}" +%s 2>/dev/null)" || continue
+        # 604800 = 7 jours. On ajoute au timestamp plutôt que de réécrire la
+        # chaîne : `date -d "... 04:00 +7 days"` lit « +7 » comme un fuseau.
+        if [ "${target}" -le "${now}" ]; then
+            target=$((target + 604800))
+        fi
+        if [ -z "${best}" ] || [ "${target}" -lt "${best}" ]; then
+            best="${target}"
+        fi
+    done
+    [ -n "${best}" ] || best=$((now + 3600))
+    printf '%s' "${best}"
+}
+
+log "planification : ${SCHEDULE_DAYS} à ${SCHEDULE_TIME} (${TZ_VALUE})"
 
 if [ -f "${CHANGELOG_SCRIPT}" ]; then
     log "script d'écriture du CHANGELOG : ${CHANGELOG_SCRIPT}"
@@ -101,13 +171,17 @@ run_once() {
 trap 'log "arrêt demandé"; exit 0' TERM INT
 
 if [ "$(read_option run_on_start)" = "false" ]; then
-    log "run_on_start=false : premier passage dans ${INTERVAL} h"
+    log "run_on_start=false : premier passage à la prochaine échéance planifiée."
 else
     run_once
 fi
 
 while true; do
-    log "prochain passage dans ${INTERVAL} h"
-    sleep $((INTERVAL * 3600)) &
+    SLOT="$(next_slot)"
+    WAIT=$(( SLOT - $(date +%s) ))
+    [ "${WAIT}" -ge 30 ] || WAIT=30
+    log "prochaine exécution : $(date -d "@${SLOT}" '+%A %d/%m/%Y à %H:%M') (${TZ_VALUE}), dans $((WAIT / 60)) min"
+    sleep "${WAIT}" &
     wait $!
+    run_once
 done
