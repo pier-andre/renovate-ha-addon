@@ -2,6 +2,10 @@
 
 ## Non publié
 
+## 1.2.2
+
+- Icône du panneau remplacée : `mdi:package-up` (un paquet qui monte de version) au lieu de `mdi:robot-outline`. Rien d'autre ne change, mais l'image doit être reconstruite pour que Home Assistant affiche la nouvelle icône.
+
 ## 1.2.1
 
 - Fuseau par défaut passé de `Europe/Paris` à `America/Toronto`, pour l'option `timezone` comme pour le repli utilisé quand un fuseau inconnu est saisi. Sans effet sur les installations existantes : le Supervisor conserve la valeur déjà enregistrée dans l'onglet Configuration.
