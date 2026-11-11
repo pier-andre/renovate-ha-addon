@@ -1,8 +1,8 @@
 name: Renovate
-version: "1.0.0"
+version: "1.0.1"
 slug: renovate
 description: Maintient vos dépôts GitHub à jour, avec incrément de version et journal des modifications dans chaque PR
-url: https://github.com/VOTRE_COMPTE/renovate-ha-addon/tree/main/renovate
+url: https://github.com/pier-andre/renovate-ha-addon/tree/main/renovate
 arch:
   - amd64
   - aarch64

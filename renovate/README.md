@@ -30,10 +30,13 @@ l'add-on : sans elles, Renovate ignorerait `postUpgradeTasks` **en silence**.
 
 ## Installation
 
-1. Ce dépôt est autonome : `repository.yaml` à la racine, l'add-on dans `renovate/`.
-   Publiez-le tel quel sur GitHub (par exemple sous le nom `renovate-ha-addon`).
+1. Ce dépôt est un dépôt d'applications Home Assistant : `repository.yaml` et `renovate.json` à la
+   racine, l'add-on dans `renovate/` — le nom du dossier est son slug — avec son `CHANGELOG.md` et
+   son `DOCS.md` à côté de `config.yaml`. Il est publié sur
+   <https://github.com/pier-andre/renovate-ha-addon>.
 2. Dans Home Assistant : **Paramètres → Modules complémentaires → Boutique** → menu ⋮ →
-   **Dépôts** → l'URL de ce nouveau dépôt, puis **Ajouter**.
+   **Dépôts** → `https://github.com/pier-andre/renovate-ha-addon`, puis **Ajouter**. Le dépôt doit
+   rester public : la boutique clone sans identifiants.
 3. **Renovate** apparaît dans la boutique → **Installer**. La construction prend quelques minutes
    (l'image Renovate est téléchargée).
 4. Onglet **Configuration** : collez un jeton GitHub dans `github_token`

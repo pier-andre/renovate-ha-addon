@@ -14,7 +14,8 @@ modifications. Vous fusionnez, Home Assistant propose la mise à jour de l'add-o
 ## Installation
 
 1. Ajoutez ce dépôt dans Home Assistant : **Paramètres → Modules complémentaires → Boutique**,
-   menu ⋮ → **Dépôts**, puis l'URL de ce dépôt.
+   menu ⋮ → **Dépôts**, puis `https://github.com/pier-andre/renovate-ha-addon`. Le dépôt doit rester
+   public : la boutique clone sans identifiants.
 2. **Renovate** apparaît dans la boutique → **Installer** (quelques minutes : l'image est
    téléchargée).
 3. Onglet **Configuration** : collez un jeton GitHub dans `github_token`, avec les droits `repo`
@@ -23,6 +24,21 @@ modifications. Vous fusionnez, Home Assistant propose la mise à jour de l'add-o
 
 La suite (options détaillées, préparation de vos dépôts, limites) est dans
 [`renovate/README.md`](renovate/README.md) et dans l'onglet Documentation de l'add-on.
+
+## Quels dépôts lui confier
+
+Dans l'onglet Configuration, `repositories` accepte une liste `compte/dépôt` :
+
+```yaml
+- pier-andre/renovate-ha-addon
+- pier-andre/freebuff-ha-addon
+- pier-andre/litellm-proxy-ha-addon
+- pier-andre/ollaya-ha-addon
+```
+
+Chacun de ces dépôts contient un `renovate.json` à sa racine ; l'add-on s'y réfère. Laisser la liste
+vide fait travailler Renovate sur **tous** les dépôts auxquels le jeton a accès, ce qui ouvre une PR
+« Configure Renovate » dans chacun — à éviter avec un jeton qui voit d'autres projets.
 
 ## Préparer vos dépôts
 
