@@ -1,5 +1,5 @@
 name: Renovate
-version: "1.2.2"
+version: "1.2.3"
 slug: renovate
 description: Maintient vos dépôts GitHub à jour, avec incrément de version, journal des modifications dans chaque PR et un panneau listant les mises à jour en attente
 url: https://github.com/pier-andre/renovate-ha-addon/tree/main/renovate

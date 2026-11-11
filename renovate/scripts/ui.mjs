@@ -80,7 +80,7 @@ async function collect() {
   }
   if (!payload.repositories.length) {
     payload.problems.push(
-      "Aucun dépôt dans `repositories` : ajoutez vos dépôts (`compte/dépôt`) pour les voir ici.",
+      "Aucun dépôt dans `repositories` : Renovate parcourt bien tous les dépôts auxquels le jeton a accès, mais ce panneau ne peut interroger que ceux qu'on lui liste. Ajoutez-les dans l'onglet Configuration, un par ligne au format `compte/dépôt` (par exemple `pier-andre/ollaya-ha-addon`), puis redémarrez l'add-on.",
     );
     return payload;
   }

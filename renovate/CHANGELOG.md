@@ -2,6 +2,10 @@
 
 ## Non publié
 
+## 1.2.3
+
+- Message du panneau quand `repositories` est vide : il explique désormais que Renovate parcourt malgré tout tous les dépôts accessibles au jeton, que le panneau ne peut afficher que ceux de la liste, et où l'ajouter (onglet Configuration, format `compte/dépôt`, redémarrage). Aucun changement de comportement : seul le texte affiché diffère, mais l'image doit être reconstruite pour qu'il s'affiche.
+
 ## 1.2.2
 
 - Icône du panneau remplacée : `mdi:package-up` (un paquet qui monte de version) au lieu de `mdi:robot-outline`. Rien d'autre ne change, mais l'image doit être reconstruite pour que Home Assistant affiche la nouvelle icône.
