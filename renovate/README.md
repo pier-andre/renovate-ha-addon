@@ -13,12 +13,6 @@ payantes. Il faut donc un Renovate auto-hébergé, et Home Assistant est l'endro
 pour l'héberger : la machine est déjà allumée en permanence, elle a déjà la surveillance, les
 journaux et les sauvegardes.
 
-**Est-ce plus performant que le NAS ?** Pas nécessairement. Renovate consomme jusqu'à ~1 Go de
-RAM au pic. Si votre Home Assistant tourne sur un Raspberry Pi 4, l'add-on est plus pratique mais
-pas plus rapide qu'un NAS x86 ; si votre HA tourne sur un mini-PC ou dans une machine virtuelle,
-c'est effectivement plus confortable. L'avantage réel est ailleurs : un seul endroit à surveiller,
-aucune tâche planifiée à configurer, et plus besoin d'un jeton qui traîne sur un autre appareil.
-
 ## Comment ça marche
 
 L'image Docker officielle `ghcr.io/renovatebot/renovate` est réutilisée telle quelle. Deux ajouts :
@@ -89,18 +83,6 @@ un `CHANGELOG.md`. Un changelog unique à la racine du dépôt ne serait jamais 
 Rappel utile : la liste d'autorisation des commandes (`allowedCommands`) **ne peut pas** être
 mise dans `renovate.json` — elle vit dans l'add-on, c'est voulu par Renovate (sécurité).
 
-## Différences avec la version NAS
-
-| | Add-on HA | Docker sur le NAS |
-| --- | --- | --- |
-| Machine à laisser allumée | celle de Home Assistant | le NAS |
-| Planification | intégrée (boucle de l'add-on) | Planificateur de tâches DSM |
-| Jeton GitHub stocké | dans `/data` de l'add-on | dans un fichier du NAS |
-| Mise à jour du script CHANGELOG | dans l'image de l'add-on | dossier `scripts/` monté |
-| Journal | onglet Journal de HA | sortie de la tâche DSM |
-
-Les deux versions utilisent le même `renovate.json` côté dépôt.
-
 ## Comment l'add-on se met-il à jour lui-même
 
 Le `Dockerfile` ne dit pas `latest` mais une version précise : `ghcr.io/renovatebot/renovate:44.232.0`.
@@ -121,9 +103,6 @@ Pour monter de version à la main, il suffit de changer le numéro dans cette li
 
 ## Limites connues et points non vérifiés
 
-- **Rien de tout ceci n'a été construit ni exécuté** : pas de Docker ni de Home Assistant ici.
-  Les tests faits portent sur la syntaxe, la lecture des options et la logique de l'add-on
-  (voir ci-dessous), pas sur un vrai passage de Renovate contre GitHub.
 - Architectures : `amd64` et `aarch64` seulement. L'image Renovate n'existe pas en 32 bits :
   un Raspberry Pi sous HA 32 bits ne pourra pas l'installer.
 - L'add-on tourne en **root**, ce qui est le cas courant pour les add-ons et permet à Renovate
