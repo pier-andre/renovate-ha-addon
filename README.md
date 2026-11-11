@@ -41,7 +41,7 @@ garder des historiques et des journaux lisibles. L'add-on Freebuff vit de son c�
 
 - `amd64` et `aarch64` uniquement (pas de Raspberry Pi 32 bits).
 - Jusqu'à ~1 Go de RAM au pic sur un gros dépôt.
-- L'add-on tourne en root et se construit à partir de l'image officielle Renovate (`latest`).
+- L'add-on tourne en root et se construit à partir de l'image officielle Renovate.
 - Emballage communautaire : ni maintenu par Home Assistant, ni par Renovate/Mend.
 
 ## Licence
